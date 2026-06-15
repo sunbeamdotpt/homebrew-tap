@@ -1,8 +1,8 @@
 class CargoCallgraph < Formula
   desc "Generate callgraphs for Rust workspaces using rust-analyzer"
   homepage "https://github.com/sunbeamdotpt/cargo-callgraph"
-  url "https://github.com/sunbeamdotpt/cargo-callgraph/archive/refs/tags/v0.2.0.tar.gz"
-  sha256 "e31a4ffdf0fb4613fd3666b2e1ea6144eab3bf78b88ef76a4010252ce688c37c"
+  url "https://github.com/sunbeamdotpt/cargo-callgraph/archive/refs/tags/v0.2.1.tar.gz"
+  sha256 "2afde01166dcc86354c7a958d28618b4a84e0b96d6dcb7b0a4537697c781e93e"
   license "AGPL-3.0-or-later"
   head "https://github.com/sunbeamdotpt/cargo-callgraph.git", branch: "mainline"
 
