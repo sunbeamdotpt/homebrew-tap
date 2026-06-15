@@ -6,6 +6,7 @@ class SunbeamMemory < Formula
   license "MIT"
   head "https://github.com/sunbeamdotpt/memory.git", branch: "mainline"
 
+  depends_on "protobuf" => :build
   depends_on "rust" => :build
 
   def install
