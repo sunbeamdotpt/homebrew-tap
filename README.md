@@ -1,0 +1,55 @@
+# Sunbeam Homebrew Tap
+
+A custom [Homebrew](https://brew.sh/) tap for Sunbeam tools.
+
+## Setup
+
+Add this tap to Homebrew:
+
+```bash
+brew tap sunbeamdotpt/tap https://github.com/sunbeamdotpt/tap.git
+```
+
+Or with SSH:
+
+```bash
+brew tap sunbeamdotpt/tap git@github.com:sunbeamdotpt/tap.git
+```
+
+## Available Formulae
+
+| Formula | Description | Install Command |
+|---------|-------------|-----------------|
+| `example` | Example formula demonstrating the tap structure | `brew install example` |
+| `sunbeam-memory` | Personal semantic memory server for AI assistants | `brew install sunbeam-memory` |
+
+To list all available formulae in this tap:
+
+```bash
+brew search sunbeamdotpt/tap
+```
+
+## Adding a New Formula
+
+1. Create a new Ruby file under [`Formula/`](./Formula).
+2. Name the file after the tool (e.g., `my-tool.rb`).
+3. Define the formula using the Homebrew formula DSL.
+4. Run `brew install --build-from-source ./Formula/my-tool.rb` to test locally.
+5. Run `brew test ./Formula/my-tool.rb` and `brew audit --new ./Formula/my-tool.rb` before committing.
+
+See [`Formula/example.rb`](./Formula/example.rb) for a starting template.
+
+## Updating a Formula
+
+1. Bump the `url`, `version`, and `sha256` in the formula file.
+2. Test the install: `brew reinstall --build-from-source ./Formula/my-tool.rb`
+3. Run `brew test ./Formula/my-tool.rb` and `brew audit ./Formula/my-tool.rb`.
+4. Commit and push.
+
+## Casks
+
+If any tools are distributed as `.app` bundles or macOS installers, place cask definitions in [`Casks/`](./Casks).
+
+## CI
+
+The `.github/workflows/` directory contains workflows for testing and publishing bottles on new releases.
