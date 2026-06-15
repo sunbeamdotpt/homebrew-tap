@@ -16,15 +16,15 @@ class SunbeamMemory < Formula
     # the background HTTP service without editing the generated launchd plist.
     (bin/"sunbeam-memory-http").write <<~EOS
       #!/bin/sh
-      [ -r #{etc}/sunbeam-memory/env ] && . #{etc}/sunbeam-memory/env
+      [ -r #{var}/sunbeam-memory/env ] && . #{var}/sunbeam-memory/env
       exec #{opt_bin}/sunbeam-memory http --port 3456 "$@"
     EOS
     (bin/"sunbeam-memory-http").chmod 0755
   end
 
   def post_install
-    (etc/"sunbeam-memory").mkpath
-    (etc/"sunbeam-memory/env").write <<~EOS unless (etc/"sunbeam-memory/env").exist?
+    (var/"sunbeam-memory").mkpath
+    (var/"sunbeam-memory/env").write <<~EOS unless (var/"sunbeam-memory/env").exist?
       # Sunbeam Memory HTTP service environment variables.
       # This file is sourced by the brew services wrapper before starting the server.
       #
@@ -58,7 +58,7 @@ class SunbeamMemory < Formula
       To configure environment variables (auth, data directory, session TTL, etc.),
       edit the env file:
 
-          #{etc}/sunbeam-memory/env
+          #{var}/sunbeam-memory/env
 
       Example:
 
