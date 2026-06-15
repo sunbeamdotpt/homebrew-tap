@@ -20,7 +20,6 @@ brew tap sunbeamdotpt/tap git@github.com:sunbeamdotpt/tap.git
 
 | Formula | Description | Install Command |
 |---------|-------------|-----------------|
-| `example` | Example formula demonstrating the tap structure | `brew install example` |
 | `sunbeam-memory` | Personal semantic memory server for AI assistants | `brew install sunbeam-memory` |
 
 To list all available formulae in this tap:
@@ -37,7 +36,7 @@ brew search sunbeamdotpt/tap
 4. Run `brew install --build-from-source ./Formula/my-tool.rb` to test locally.
 5. Run `brew test ./Formula/my-tool.rb` and `brew audit --new ./Formula/my-tool.rb` before committing.
 
-See [`Formula/example.rb`](./Formula/example.rb) for a starting template.
+See the [Homebrew Formula Cookbook](https://docs.brew.sh/Formula-Cookbook) for the full DSL reference.
 
 ## Updating a Formula
 
