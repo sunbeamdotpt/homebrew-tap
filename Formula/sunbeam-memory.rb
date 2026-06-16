@@ -1,8 +1,8 @@
 class SunbeamMemory < Formula
   desc "Personal semantic memory server for AI assistants"
   homepage "https://github.com/sunbeamdotpt/memory"
-  url "https://github.com/sunbeamdotpt/memory/archive/refs/tags/v0.3.3.tar.gz"
-  sha256 "b877ddca78e95590db4715651b9ab6d1e84f19e85527b56aeaae4544d2ff257e"
+  url "https://github.com/sunbeamdotpt/memory/archive/refs/tags/v0.3.4.tar.gz"
+  sha256 "c9df6c243948db06f48b55fec208bb39caad61ea7c1b5806fb26f9e49d9d4069"
   license "MIT"
   head "https://github.com/sunbeamdotpt/memory.git", branch: "mainline"
 
@@ -35,7 +35,9 @@ class SunbeamMemory < Formula
       # export MCP_AUTH_TOKEN="your-secret-token"
       # export MCP_OIDC_ISSUER="https://auth.example.com"
       # export MCP_OIDC_AUDIENCE="sunbeam-memory"
-      # export MCP_SESSION_TTL_HOURS="24"
+      # export MCP_STDIO_KEEPALIVE_SECONDS="30"
+      # export MCP_SSE_KEEPALIVE_SECONDS="15"
+      # export MCP_SESSION_KEEPALIVE_SECONDS="300"
     EOS
   end
 
