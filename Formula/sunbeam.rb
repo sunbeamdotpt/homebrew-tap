@@ -1,58 +1,52 @@
 class Sunbeam < Formula
   desc "CLI for the Sunbeam Compute Platform"
   homepage "https://github.com/sunbeamdotpt/cli"
-  url "https://github.com/sunbeamdotpt/cli/archive/refs/tags/v3.1.0.tar.gz"
-  sha256 "a0d51cd9282533afae10c4a91027e48d5ac894d28ab8332fceb951d15aee1575"
   license "MIT"
-  head "https://github.com/sunbeamdotpt/cli.git", branch: "mainline"
 
-  # buf: the `sdk` dependency generates its ConnectRPC stubs at build time
-  # (buf export buf.build/sunbeamdotpt/kanban) — network access required.
-  # protobuf: protoc is required by transitive build scripts (wfe protos).
-  depends_on "buf" => :build
-  depends_on "protobuf" => :build
-  depends_on "rust" => :build
+  # Prebuilt release tarballs (binary + man pages + shell completions) from
+  # the GitHub release — no build toolchain required. The platform's public
+  # SSO client ID is baked in by the release workflow.
+  on_macos do
+    on_arm do
+      url "https://github.com/sunbeamdotpt/cli/releases/download/v3.1.0/sunbeam_3.1.0_aarch64-apple-darwin.tar.gz"
+      sha256 "f48d53b95410bbcd48cd27fb1776db4b549a1a3ea2131eba2e7fe492fa178059"
+    end
+    on_intel do
+      url "https://github.com/sunbeamdotpt/cli/releases/download/v3.1.0/sunbeam_3.1.0_x86_64-apple-darwin.tar.gz"
+      sha256 "27e33864149bcde19603379750b51ae1b1f2e981267edda48d8c858525f54971"
+    end
+  end
+
+  on_linux do
+    on_arm do
+      url "https://github.com/sunbeamdotpt/cli/releases/download/v3.1.0/sunbeam_3.1.0_aarch64-unknown-linux-gnu.tar.gz"
+      sha256 "cb442e9e800e7b3fb46d880e0b0bde0daef065985342d75fdc1ed76150944aab"
+    end
+    on_intel do
+      url "https://github.com/sunbeamdotpt/cli/releases/download/v3.1.0/sunbeam_3.1.0_x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "9f48b3ef606e3e0f7db797a4298d88127b11942fc030d3e5c1a78011cbe14176"
+    end
+  end
 
   def install
-    # The CLI's public SSO client ID is platform-provisioned and deliberately
-    # never committed to any repo. Builds bake it in at compile time
-    # (option_env!) when SUNBEAM_SSO_CLIENT_ID is set; otherwise users must
-    # provide it at runtime (see caveats). Homebrew's wrapper only forwards
-    # HOMEBREW_* variables into the build, so accept that channel too.
-    sso_client_id = ENV["SUNBEAM_SSO_CLIENT_ID"].to_s
-    sso_client_id = ENV["HOMEBREW_SSO_CLIENT_ID"].to_s if sso_client_id.empty?
-    if sso_client_id.empty?
-      opoo "SUNBEAM_SSO_CLIENT_ID not set; `sunbeam auth login` will require it at runtime"
-    else
-      ENV["SUNBEAM_SSO_CLIENT_ID"] = sso_client_id
-    end
-
-    system "cargo", "install", *std_cargo_args
-
-    generate_completions_from_executable(bin/"sunbeam", "completions")
-
-    # Man pages: rendered from the clap tree by the hidden `__man` command.
-    (buildpath/"man").mkpath
-    system bin/"sunbeam", "__man", buildpath/"man"
-    man1.install Dir["man/*.1"]
+    bin.install "sunbeam"
+    man1.install Dir["man/*.1.gz"]
+    bash_completion.install "sunbeam.bash" => "sunbeam"
+    zsh_completion.install "sunbeam.zsh" => "_sunbeam"
+    fish_completion.install "sunbeam.fish"
   end
 
   def caveats
     <<~EOS
-      `sunbeam auth login` needs the platform's public SSO client ID.
-      If it was not baked into this build, set it before logging in:
-        export SUNBEAM_SSO_CLIENT_ID=<provisioned-client-id>
-
-      To bake it into a source build instead:
-        HOMEBREW_SSO_CLIENT_ID=<provisioned-client-id> \\
-          brew install --build-from-source sunbeamdotpt/tap/sunbeam
+      The platform's public SSO client ID is baked into this release binary.
+      To override it (e.g. against a staging gateway):
+        export SUNBEAM_SSO_CLIENT_ID=<other-client-id>
     EOS
   end
 
   test do
     assert_match version.to_s, shell_output("#{bin}/sunbeam --version")
-    assert_path_exists man1/"sunbeam.1"
-    assert_path_exists man1/"sunbeam-service-apply.1"
-    assert_path_exists man1/"sunbeam-kanban-card-create.1"
+    assert_path_exists man1/"sunbeam.1.gz"
+    assert_path_exists man1/"sunbeam-service-apply.1.gz"
   end
 end
