@@ -20,6 +20,7 @@ brew tap sunbeamdotpt/tap git@github.com:sunbeamdotpt/tap.git
 
 | Formula | Description | Install Command |
 |---------|-------------|-----------------|
+| `sunbeam` | Kubernetes-based local dev stack manager (CLI) | `brew install sunbeam` |
 | `sunbeam-memory` | Personal semantic memory server for AI assistants | `brew install sunbeam-memory` |
 | `cargo-callgraph` | Generate callgraphs for Rust workspaces using rust-analyzer | `brew install cargo-callgraph` |
 
