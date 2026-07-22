@@ -1,8 +1,8 @@
 class Sunbeam < Formula
   desc "CLI for the Sunbeam Compute Platform"
   homepage "https://github.com/sunbeamdotpt/cli"
-  url "https://github.com/sunbeamdotpt/cli/archive/refs/tags/v3.0.0.tar.gz"
-  sha256 "620de1303f6a414f82b5b04eae51b347fc0e8d7a3c224e4d8996955648808a5c"
+  url "https://github.com/sunbeamdotpt/cli/archive/refs/tags/v3.1.0.tar.gz"
+  sha256 "a0d51cd9282533afae10c4a91027e48d5ac894d28ab8332fceb951d15aee1575"
   license "MIT"
   head "https://github.com/sunbeamdotpt/cli.git", branch: "mainline"
 
