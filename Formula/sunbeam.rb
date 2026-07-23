@@ -8,23 +8,23 @@ class Sunbeam < Formula
   # SSO client ID is baked in by the release workflow.
   on_macos do
     on_arm do
-      url "https://github.com/sunbeamdotpt/cli/releases/download/v3.1.0/sunbeam_3.1.0_aarch64-apple-darwin.tar.gz"
-      sha256 "f48d53b95410bbcd48cd27fb1776db4b549a1a3ea2131eba2e7fe492fa178059"
+      url "https://github.com/sunbeamdotpt/cli/releases/download/v3.1.1/sunbeam_3.1.1_aarch64-apple-darwin.tar.gz"
+      sha256 "e7a415291761cafc9c28b6a4cb688934db6b493d7b37432545e433f547b661e6"
     end
     on_intel do
-      url "https://github.com/sunbeamdotpt/cli/releases/download/v3.1.0/sunbeam_3.1.0_x86_64-apple-darwin.tar.gz"
-      sha256 "27e33864149bcde19603379750b51ae1b1f2e981267edda48d8c858525f54971"
+      url "https://github.com/sunbeamdotpt/cli/releases/download/v3.1.1/sunbeam_3.1.1_x86_64-apple-darwin.tar.gz"
+      sha256 "4806f3a8a924d7b5cb8702c628512ec2d51b9796f9d68c7e4d3c98a1b1c39090"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/sunbeamdotpt/cli/releases/download/v3.1.0/sunbeam_3.1.0_aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "cb442e9e800e7b3fb46d880e0b0bde0daef065985342d75fdc1ed76150944aab"
+      url "https://github.com/sunbeamdotpt/cli/releases/download/v3.1.1/sunbeam_3.1.1_aarch64-unknown-linux-gnu.tar.gz"
+      sha256 "389d9cee24fb5880d02a3a5b8769ba0dff315af674af977822cae162cb804376"
     end
     on_intel do
-      url "https://github.com/sunbeamdotpt/cli/releases/download/v3.1.0/sunbeam_3.1.0_x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "9f48b3ef606e3e0f7db797a4298d88127b11942fc030d3e5c1a78011cbe14176"
+      url "https://github.com/sunbeamdotpt/cli/releases/download/v3.1.1/sunbeam_3.1.1_x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "d30856361e1a7c284202fb5a39e8e8b2cb7d54667f699fd219d83d6d5f545865"
     end
   end
 
