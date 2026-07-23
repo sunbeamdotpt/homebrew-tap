@@ -68,7 +68,8 @@ workflow must:
    formula's `url`s reference. For source-build formulas (which use the
    `archive/refs/tags/vX.Y.Z.tar.gz` URL), include the source archive's entry
    (basename `vX.Y.Z.tar.gz`).
-2. Call the reusable workflow at the end of the release pipeline:
+2. Call the reusable workflow at the end of the release pipeline (no secrets
+   to pass — the org secrets below live at the org level):
 
    ```yaml
    homebrew-tap:
@@ -77,32 +78,28 @@ workflow must:
      with:
        formula: <formula-name>          # filename under Formula/, without .rb
        version: ${{ github.ref_name }}  # vX.Y.Z — the v is stripped
-     secrets:
-       token: ${{ secrets.TAP_GITHUB_TOKEN }}
    ```
 
 ### Setup (already done once; documented for new repos)
 
-1. **Token**: `TAP_GITHUB_TOKEN` must exist as a secret in this repo (for
-   manual `workflow_dispatch` runs) and in every releasing repo. A personal
-   access token is required both for cross-repo access and because PRs opened
-   with the default `GITHUB_TOKEN` don't trigger CI. Currently this is the
-   owner's `gh` OAuth token set per-repo; a fine-grained PAT scoped to
-   `sunbeamdotpt/tap` (`Contents: read/write`, `Pull requests: read/write`)
-   stored as an **org secret** visible to the releasing repos is the cleaner
-   long-term option (setting org secrets needs the `admin:org` scope).
-   Note the stored token stops working if the underlying credential is
-   revoked.
+1. **Identity**: the org-owned GitHub App
+   [`sunbeam-tap-bumper`](https://github.com/apps/sunbeam-tap-bumper)
+   (permissions: `contents:write` + `pull_requests:write`, installed on the
+   org). Its credentials are the **org secrets** `SUNBEAM_TAP_APP_ID` and
+   `SUNBEAM_TAP_APP_PRIVATE_KEY` (visibility: all repos). The workflow mints a
+   short-lived installation token per run via
+   `actions/create-github-app-token` — no personal tokens anywhere, and the
+   app's PRs trigger CI normally.
 2. **Repo settings** on `sunbeamdotpt/tap` (already configured):
    - **Allow auto-merge** is enabled;
    - branch protection on `mainline` requires the `tests.yml` checks
      (`test-bot` on macOS and Ubuntu) to pass before merging. This is what
      makes auto-merge wait for green CI. Direct pushes to `mainline` are
      still allowed.
-3. **Smoke test** (already passed once): dispatch the workflow manually from
-   the Actions tab with the current version — it should report a no-op. The
-   full loop (PR opens, trust gate passes, auto-merge engages, CI runs) was
-   verified with PR #1.
+3. **Smoke test** (already passed): dispatch the workflow manually from the
+   Actions tab with the current version — it should report a no-op. The full
+   loop (PR opens, trust gate passes, auto-merge engages, CI runs) was
+   verified with PR #1 (personal-token version) and PR #2 (app version).
 
 Auto-merge is only ever enabled for the same-repo `bump/<formula>-<version>`
 branch the workflow itself just created — the step hard-fails on anything

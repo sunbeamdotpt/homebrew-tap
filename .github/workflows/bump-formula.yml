@@ -1,16 +1,17 @@
 # bump-formula.yml — reusable workflow that opens (and auto-merges) a PR
 # bumping one formula to a new upstream release.
 #
-# Called from sunbeamdotpt source repos' release workflows:
+# Called from sunbeamdotpt source repos' release workflows — no secrets to
+# pass: the org-level SUNBEAM_TAP_APP_ID / SUNBEAM_TAP_APP_PRIVATE_KEY secrets
+# let this workflow mint a short-lived installation token for the
+# `sunbeam-tap-bumper` GitHub App, scoped to this repo.
 #
 #   homebrew-tap:
 #     needs: release
 #     uses: sunbeamdotpt/tap/.github/workflows/bump-formula.yml@mainline
 #     with:
-#       formula: sunbeam          # formula filename without .rb
+#       formula: sunbeam                  # formula filename without .rb
 #       version: ${{ github.ref_name }}   # vX.Y.Z — the v is stripped here
-#     secrets:
-#       token: ${{ secrets.TAP_GITHUB_TOKEN }}
 #
 # Auto-merge is only ever enabled for the same-repo bump/* branch this
 # workflow just created — see the trust gate below.
@@ -28,11 +29,7 @@ on:
         description: "New upstream version, with or without leading v"
         required: true
         type: string
-    secrets:
-      token:
-        description: "PAT with contents+pull-requests write on this tap"
-        required: true
-  # Manual one-off (uses the tap repo's own TAP_GITHUB_TOKEN secret):
+  # Manual one-off:
   workflow_dispatch:
     inputs:
       formula:
@@ -45,16 +42,23 @@ on:
         type: string
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   bump:
     runs-on: ubuntu-24.04
     env:
       FORMULA: ${{ inputs.formula }}
-      TOKEN: ${{ secrets.token || secrets.TAP_GITHUB_TOKEN }}
     steps:
+      - name: Mint tap token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.SUNBEAM_TAP_APP_ID }}
+          private-key: ${{ secrets.SUNBEAM_TAP_APP_PRIVATE_KEY }}
+          owner: sunbeamdotpt
+          repositories: tap
+
       - name: Normalize version
         id: v
         env:
@@ -64,7 +68,7 @@ jobs:
       - name: Check out tap
         uses: actions/checkout@v4
         with:
-          token: ${{ env.TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Bump formula
         id: bump
@@ -72,8 +76,8 @@ jobs:
           VERSION: ${{ steps.v.outputs.version }}
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "sunbeam-tap-bumper[bot]"
+          git config user.email "4377784+sunbeam-tap-bumper[bot]@users.noreply.github.com"
           scripts/bump-formula.sh "Formula/${FORMULA}.rb" "$VERSION"
           if git diff --quiet; then
             echo "noop=true" >> "$GITHUB_OUTPUT"
@@ -87,7 +91,7 @@ jobs:
         if: steps.bump.outputs.noop != 'true'
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ env.TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           branch: bump/${{ inputs.formula }}-${{ steps.v.outputs.version }}
           commit-message: "chore: bump ${{ inputs.formula }} to ${{ steps.v.outputs.version }}"
           title: "chore: bump ${{ inputs.formula }} to ${{ steps.v.outputs.version }}"
@@ -105,7 +109,7 @@ jobs:
       - name: Enable auto-merge
         if: steps.pr.outputs.pull-request-number != ''
         env:
-          GH_TOKEN: ${{ env.TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           PR_NUMBER: ${{ steps.pr.outputs.pull-request-number }}
           EXPECTED_BRANCH: bump/${{ inputs.formula }}-${{ steps.v.outputs.version }}
         run: |
