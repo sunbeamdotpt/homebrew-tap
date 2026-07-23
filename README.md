@@ -81,22 +81,28 @@ workflow must:
        token: ${{ secrets.TAP_GITHUB_TOKEN }}
    ```
 
-### One-time setup
+### Setup (already done once; documented for new repos)
 
-1. **Token**: create a fine-grained PAT scoped to `sunbeamdotpt/tap` with
-   `Contents: read/write` and `Pull requests: read/write`, and store it as an
-   **org secret** named `TAP_GITHUB_TOKEN` visible to the releasing repos
-   (also add it as a repo secret here so `workflow_dispatch` runs work).
-   A PAT is required both for cross-repo access and because PRs opened with
-   the default `GITHUB_TOKEN` don't trigger CI.
-2. **Repo settings** on `sunbeamdotpt/tap`:
-   - enable **Allow auto-merge**;
-   - add branch protection on `mainline` requiring the `tests.yml` checks
+1. **Token**: `TAP_GITHUB_TOKEN` must exist as a secret in this repo (for
+   manual `workflow_dispatch` runs) and in every releasing repo. A personal
+   access token is required both for cross-repo access and because PRs opened
+   with the default `GITHUB_TOKEN` don't trigger CI. Currently this is the
+   owner's `gh` OAuth token set per-repo; a fine-grained PAT scoped to
+   `sunbeamdotpt/tap` (`Contents: read/write`, `Pull requests: read/write`)
+   stored as an **org secret** visible to the releasing repos is the cleaner
+   long-term option (setting org secrets needs the `admin:org` scope).
+   Note the stored token stops working if the underlying credential is
+   revoked.
+2. **Repo settings** on `sunbeamdotpt/tap` (already configured):
+   - **Allow auto-merge** is enabled;
+   - branch protection on `mainline` requires the `tests.yml` checks
      (`test-bot` on macOS and Ubuntu) to pass before merging. This is what
-     makes auto-merge wait for green CI.
-3. **Smoke test**: cut a patch release in one source repo (or dispatch the
-   workflow manually from the Actions tab with the current version, which
-   should report a no-op) and watch the bump PR open, pass CI, and merge.
+     makes auto-merge wait for green CI. Direct pushes to `mainline` are
+     still allowed.
+3. **Smoke test** (already passed once): dispatch the workflow manually from
+   the Actions tab with the current version — it should report a no-op. The
+   full loop (PR opens, trust gate passes, auto-merge engages, CI runs) was
+   verified with PR #1.
 
 Auto-merge is only ever enabled for the same-repo `bump/<formula>-<version>`
 branch the workflow itself just created — the step hard-fails on anything
