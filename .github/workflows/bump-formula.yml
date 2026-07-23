@@ -1,0 +1,123 @@
+# bump-formula.yml — reusable workflow that opens (and auto-merges) a PR
+# bumping one formula to a new upstream release.
+#
+# Called from sunbeamdotpt source repos' release workflows:
+#
+#   homebrew-tap:
+#     needs: release
+#     uses: sunbeamdotpt/tap/.github/workflows/bump-formula.yml@mainline
+#     with:
+#       formula: sunbeam          # formula filename without .rb
+#       version: ${{ github.ref_name }}   # vX.Y.Z — the v is stripped here
+#     secrets:
+#       token: ${{ secrets.TAP_GITHUB_TOKEN }}
+#
+# Auto-merge is only ever enabled for the same-repo bump/* branch this
+# workflow just created — see the trust gate below.
+
+name: bump-formula
+
+on:
+  workflow_call:
+    inputs:
+      formula:
+        description: "Formula filename without .rb (e.g. sunbeam)"
+        required: true
+        type: string
+      version:
+        description: "New upstream version, with or without leading v"
+        required: true
+        type: string
+    secrets:
+      token:
+        description: "PAT with contents+pull-requests write on this tap"
+        required: true
+  # Manual one-off (uses the tap repo's own TAP_GITHUB_TOKEN secret):
+  workflow_dispatch:
+    inputs:
+      formula:
+        description: "Formula filename without .rb (e.g. sunbeam)"
+        required: true
+        type: string
+      version:
+        description: "New upstream version, with or without leading v"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-24.04
+    env:
+      FORMULA: ${{ inputs.formula }}
+      TOKEN: ${{ secrets.token || secrets.TAP_GITHUB_TOKEN }}
+    steps:
+      - name: Normalize version
+        id: v
+        env:
+          RAW: ${{ inputs.version }}
+        run: echo "version=${RAW#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Check out tap
+        uses: actions/checkout@v4
+        with:
+          token: ${{ env.TOKEN }}
+
+      - name: Bump formula
+        id: bump
+        env:
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          scripts/bump-formula.sh "Formula/${FORMULA}.rb" "$VERSION"
+          if git diff --quiet; then
+            echo "noop=true" >> "$GITHUB_OUTPUT"
+          fi
+          repo=$(grep -m1 -E 'homepage "https://github\.com/' "Formula/${FORMULA}.rb" \
+            | sed -E 's|.*github\.com/([^"/]+/[^"/]+).*|\1|')
+          echo "repo=$repo" >> "$GITHUB_OUTPUT"
+
+      - name: Create bump PR
+        id: pr
+        if: steps.bump.outputs.noop != 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ env.TOKEN }}
+          branch: bump/${{ inputs.formula }}-${{ steps.v.outputs.version }}
+          commit-message: "chore: bump ${{ inputs.formula }} to ${{ steps.v.outputs.version }}"
+          title: "chore: bump ${{ inputs.formula }} to ${{ steps.v.outputs.version }}"
+          body: |
+            Bumps `${{ inputs.formula }}` to **${{ steps.v.outputs.version }}**.
+
+            Release: https://github.com/${{ steps.bump.outputs.repo }}/releases/tag/v${{ steps.v.outputs.version }}
+
+            Opened by the reusable `bump-formula` workflow; auto-merge is
+            enabled and fires once the required checks pass.
+
+      # Trust gate: auto-merge is enabled only when the PR head is the
+      # same-repo bump/<formula>-<version> branch this workflow just created.
+      # Cross-repository or unexpectedly-named heads hard-fail instead.
+      - name: Enable auto-merge
+        if: steps.pr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ env.TOKEN }}
+          PR_NUMBER: ${{ steps.pr.outputs.pull-request-number }}
+          EXPECTED_BRANCH: bump/${{ inputs.formula }}-${{ steps.v.outputs.version }}
+        run: |
+          set -euo pipefail
+          cross=$(gh pr view "$PR_NUMBER" --json isCrossRepository -q .isCrossRepository)
+          head=$(gh pr view "$PR_NUMBER" --json headRefName -q .headRefName)
+          if [ "$cross" != "false" ] || [ "$head" != "$EXPECTED_BRANCH" ]; then
+            echo "refusing auto-merge: cross=$cross head=$head expected=$EXPECTED_BRANCH" >&2
+            exit 1
+          fi
+          gh pr merge "$PR_NUMBER" --auto --squash
+
+      - name: Report no-op
+        if: steps.bump.outputs.noop == 'true'
+        run: echo "::notice::${FORMULA} is already at ${{ steps.v.outputs.version }} — no PR opened."

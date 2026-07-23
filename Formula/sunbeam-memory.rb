@@ -2,7 +2,7 @@ class SunbeamMemory < Formula
   desc "Personal semantic memory server for AI assistants"
   homepage "https://github.com/sunbeamdotpt/memory"
   url "https://github.com/sunbeamdotpt/memory/archive/refs/tags/v0.3.5.tar.gz"
-  sha256 "d9edfb943df9127a3260170a2570464be0ccaf9b90e8fd8bba569f66ef568d36"
+  sha256 "e6ecdec9f6f4d4ab992d1c544621b90c933d1526718c3fd7deed91dd80785f46"
   license "MIT"
   head "https://github.com/sunbeamdotpt/memory.git", branch: "mainline"
 
