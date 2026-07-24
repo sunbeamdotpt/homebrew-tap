@@ -68,6 +68,11 @@ jobs:
       - name: Check out tap
         uses: actions/checkout@v4
         with:
+          # Reusable workflows inherit the *caller's* github context, so the
+          # default checkout would pull the caller's repo (which has no
+          # scripts/bump-formula.sh). Pin the tap explicitly.
+          repository: sunbeamdotpt/tap
+          ref: mainline
           token: ${{ steps.app-token.outputs.token }}
 
       - name: Bump formula
