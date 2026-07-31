@@ -9,14 +9,11 @@ A custom [Homebrew](https://brew.sh/) tap for Sunbeam tools.
 Add this tap to Homebrew:
 
 ```bash
-brew tap sunbeamdotpt/tap https://github.com/sunbeamdotpt/tap.git
+brew tap sunbeamdotpt/tap
 ```
 
-Or with SSH:
-
-```bash
-brew tap sunbeamdotpt/tap git@github.com:sunbeamdotpt/tap.git
-```
+(The repository is named `homebrew-tap`, so the standard short form works;
+no explicit URL is needed.)
 
 ## Available Formulae
 
@@ -76,7 +73,7 @@ workflow must:
    ```yaml
    homebrew-tap:
      needs: release
-     uses: sunbeamdotpt/tap/.github/workflows/bump-formula.yml@mainline
+     uses: sunbeamdotpt/homebrew-tap/.github/workflows/bump-formula.yml@mainline
      with:
        formula: <formula-name>          # filename under Formula/, without .rb
        version: ${{ github.ref_name }}  # vX.Y.Z — the v is stripped
@@ -92,7 +89,7 @@ workflow must:
    short-lived installation token per run via
    `actions/create-github-app-token` — no personal tokens anywhere, and the
    app's PRs trigger CI normally.
-2. **Repo settings** on `sunbeamdotpt/tap` (already configured):
+2. **Repo settings** on `sunbeamdotpt/homebrew-tap` (already configured):
    - **Allow auto-merge** is enabled;
    - branch protection on `mainline` requires the `tests.yml` checks
      (`test-bot` on macOS and Ubuntu) to pass before merging. This is what
