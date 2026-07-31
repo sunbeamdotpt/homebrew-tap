@@ -57,7 +57,7 @@ jobs:
           app-id: ${{ secrets.SUNBEAM_TAP_APP_ID }}
           private-key: ${{ secrets.SUNBEAM_TAP_APP_PRIVATE_KEY }}
           owner: sunbeamdotpt
-          repositories: tap
+          repositories: homebrew-tap
 
       - name: Normalize version
         id: v
