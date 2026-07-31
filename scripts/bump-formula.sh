@@ -79,6 +79,7 @@ tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
 
 # Line numbers never shift: every edit is a same-line replacement.
+url_linenos="$(grep -n -E '^[[:space:]]*url "' "${formula_file}" | cut -d: -f1 || true)"
 while read -r url_lineno
 do
   old_url=$(sed -n "${url_lineno}s/.*url \"\(.*\)\".*/\1/p" "${formula_file}")
@@ -123,7 +124,6 @@ do
 
   sed -i.bak "${url_lineno}s|url \".*\"|url \"${new_url}\"|" "${formula_file}"
   sed -i.bak "${sha_lineno}s|sha256 \".*\"|sha256 \"${sha}\"|" "${formula_file}"
-  url_linenos="$(grep -n -E '^[[:space:]]*url "' "${formula_file}" | cut -d: -f1 || true)"
 done <<<"${url_linenos}"
 rm -f "${formula_file}.bak"
 
