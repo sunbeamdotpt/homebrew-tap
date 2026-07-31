@@ -123,7 +123,8 @@ do
 
   sed -i.bak "${url_lineno}s|url \".*\"|url \"${new_url}\"|" "${formula_file}"
   sed -i.bak "${sha_lineno}s|sha256 \".*\"|sha256 \"${sha}\"|" "${formula_file}"
-done < <(grep -n -E '^[[:space:]]*url "' "${formula_file}" | cut -d: -f1)
+  url_linenos="$(grep -n -E '^[[:space:]]*url "' "${formula_file}" | cut -d: -f1 || true)"
+done <<<"${url_linenos}"
 rm -f "${formula_file}.bak"
 
 echo "done: ${formula_file} bumped to ${new_version}"
