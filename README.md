@@ -1,3 +1,7 @@
+---
+title: Sunbeam Homebrew Tap
+---
+
 # Sunbeam Homebrew Tap
 
 [![Matrix](https://img.shields.io/badge/chat-%23hello%3Asunbeam.pt-0dbd8b?logo=matrix)](https://matrix.to/#/#hello:sunbeam.pt)
