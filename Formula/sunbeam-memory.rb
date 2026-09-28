@@ -22,7 +22,7 @@ class SunbeamMemory < Formula
     (bin/"sunbeam-memory-http").chmod 0755
   end
 
-  def post_install
+  def post_install_steps
     (var/"sunbeam-memory").mkpath
     (var/"sunbeam-memory/env").write <<~EOS unless (var/"sunbeam-memory/env").exist?
       # Sunbeam Memory HTTP service environment variables.
